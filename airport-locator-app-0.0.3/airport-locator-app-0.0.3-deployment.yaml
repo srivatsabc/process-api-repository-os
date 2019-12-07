@@ -17,8 +17,8 @@ spec:
       labels:
         app: airport-locator-app
     spec:
-      nodeSelector:
-        kubernetes.io/process-apis: allow
+      nodeSelector:  # Assigning the database to node01 node name got from the kubectl get nodes command
+        region: primary
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

@@ -19,7 +19,14 @@ oc expose svc airport-locator-app --name=airport-locator-app
 oc expose svc/airport-locator-app
 
 oc delete all --selector app=airport-locator-app
+
+oc label node node1.openshift.com process-apis=allow
 ===============================================================================
+
+===============================================================================
+Deploy app and create service
+===============================================================================
+oc apply -n process-api-ns -f airport-locator-app-0.0.3/airport-locator-app-0.0.3-deployment.yaml
 
 ===============================================================================
 Docker commands oc app
