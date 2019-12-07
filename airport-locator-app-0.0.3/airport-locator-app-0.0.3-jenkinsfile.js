@@ -31,15 +31,15 @@ pipeline {
           }
       }
 
-      stage('Kubernetes deployment delete') {
+      stage('OpenShift deployment delete') {
          steps {
            script {
-             sh "echo deleting the current kubernetes deployment $k8s_app from namespace $k8s_namespace"
+             sh "echo deleting the current OpenShift deployment $k8s_app from namespace $k8s_namespace"
              status = sh(returnStatus: true, script: "oc delete deployment $k8s_app --namespace=$k8s_namespace")
              if (status == 0){
-               stage('Kubernetes service delete') {
+               stage('OpenShift service delete') {
                    script{
-                     sh "echo deleting the current kubernetes service $k8s_app from namespace $k8s_namespace"
+                     sh "echo deleting the current OpenShift service $k8s_app from namespace $k8s_namespace"
                      status = sh(returnStatus: true, script: "oc delete service $k8s_app --namespace=$k8s_namespace")
                      if (status == 0){
                        stage('Deleting current docker image from local repo'){
@@ -54,15 +54,15 @@ pipeline {
                          }
                        }
                      }else{
-                       stage('No Kubernetes service to delete'){
-                         sh "echo no service available in kubernetes"
+                       stage('No OpenShift service to delete'){
+                         sh "echo no service available in OpenShift"
                        }
                      }
                    }
                }
              }else{
-               stage('No Kubernetes deployment to delete'){
-                 sh "echo no deployment available in kubernetes"
+               stage('No OpenShift deployment to delete'){
+                 sh "echo no deployment available in OpenShift"
                }
              }
            }
@@ -90,7 +90,7 @@ pipeline {
        }
      }
 
-     stage('Kubernetes configmap') {
+     stage('OpenShift configmap') {
        steps {
          script {
            sh "echo creating oc create -n $k8s_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s"
@@ -98,21 +98,21 @@ pipeline {
            if (statusCreate != 0){
              sh "echo Unable to create $config_map in $k8s_namespace as it already exists"
            }else{
-             stage('Kubernetes configmap created'){
-               sh "echo Kubernetes configmap successfully created"
+             stage('OpenShift configmap created'){
+               sh "echo OpenShift configmap successfully created"
              }
            }
          }
        }
      }
 
-     stage('Kubernetes deployment') {
+     stage('OpenShift deployment') {
        steps {
          sh 'oc apply -n $k8s_namespace -f $application/$deploymemt_yaml'
        }
      }
 
-     stage('Kubernetes service') {
+     stage('OpenShift service') {
        steps {
          sh 'oc apply -n $k8s_namespace -f $application/$service_yaml'
        }
