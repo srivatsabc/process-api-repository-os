@@ -43,8 +43,8 @@ spec:
           ports:
             - containerPort: 8084
           env:
-            - name: RUNTIME.ENV.TYPE #In order to help mule application pickup the right jdbc properties
+            - name: RUNTIME_ENV_TYPE #In order to help mule application pickup the right jdbc properties
               valueFrom:
                 configMapKeyRef:
                   name: airport-locator-app-config
-                  key: RUNTIME.ENV.TYPE
+                  key: RUNTIME_ENV_TYPE
