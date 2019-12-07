@@ -6,16 +6,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: airport-locator-app-v3
+  name: airport-locator-app
 spec:
   selector:
       matchLabels:
-        app: airport-locator-app-v3
+        app: airport-locator-app
   replicas: 1
   template:
     metadata:
       labels:
-        app: airport-locator-app-v3
+        app: airport-locator-app
     spec:
       nodeSelector:
         kubernetes.io/process-apis: allow
@@ -27,7 +27,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - airport-locator-app-v3
+                - airport-locator-app
             topologyKey: "kubernetes.io/hostname"
       # ----------------------------------
       # will target master node deployment
@@ -37,8 +37,8 @@ spec:
       #    effect: "NoSchedule"
       # ----------------------------------
       containers:
-        - name: airport-locator-app-v3
-          image: srivatsabc/airport-locator-app:process-api-v0.0.3
+        - name: airport-locator-app
+          image: srivatsabc/airport-locator-app:os-p-api-v0.0.3
           imagePullPolicy: Always
           ports:
             - containerPort: 9031
