@@ -5,5 +5,5 @@ RUN npm cache clean --force && npm install
 CMD node --max-old-space-size=4096 app.js
 EXPOSE 8084
 
-# This default user is created in the openshift/base-centos7 image
+# This default user is created in the openshift docker images image
 USER 1001
