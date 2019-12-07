@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: airport-locator-app-v3
+  name: airport-locator-app
 spec:
   selector:
-    app: airport-locator-app-v3
+    app: airport-locator-app
   ports:
   - port: 9031
     nodePort: 30931
