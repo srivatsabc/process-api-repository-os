@@ -1,0 +1,4 @@
+#!/bin/bash -e
+echo "---> Building application from source..."
+cp -Rf /tmp/src/. ./
+cd /opt/app-root/src && npm install

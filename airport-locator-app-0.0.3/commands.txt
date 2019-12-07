@@ -1,0 +1,46 @@
+===============================================================================
+Build Code and Docker Container
+===============================================================================
+docker build -t srivatsabc/airport-locator-app:os-papi-v0.0.1 .
+docker push srivatsabc/airport-locator-app:os-papi-v0.0.1
+===============================================================================
+
+===============================================================================
+Build oc app
+===============================================================================
+oc login https://master.openshift.com:8443
+
+oc project system-api-ns
+
+oc new-app srivatsabc/airport-locator-app:os-papi-v0.0.1 --name airport-locator-app
+
+oc expose svc airport-locator-app --name=airport-locator-app
+
+oc expose svc/airport-locator-app
+
+oc delete all --selector app=airport-locator-app
+===============================================================================
+
+===============================================================================
+Docker commands oc app
+===============================================================================
+docker run -p 9031:9031 --name airport-locator-app srivatsabc/airport-locator-app:os-papi-v0.0.1
+
+winpty docker run -ti --rm srivatsabc/python-openshift-centos7 bash
+
+winpty docker run -ti -user root --rm srivatsabc/airport-locator-app:process-api-v0.0.3 bash
+
+docker run -ti --rm srivatsabc/airport-locator-app:os-papi-v0.0.1 bash
+
+docker run -ti --rm srivatsabc/airport-locator-app:os-papi-v0.0.3 bash
+
+docker push srivatsabc/airport-locator-app:os-papi-v0.0.1
+
+docker run -ti --rm centos/python-36-centos7 bash
+
+===============================================================================
+S2i commands
+===============================================================================
+s2i create python-openshift-centos7 .
+
+s2i build app/ srivatsabc/python-openshift-centos7 srivatsabc/airport-locator-app:os-papi-v0.0.3

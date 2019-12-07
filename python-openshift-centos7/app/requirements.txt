@@ -1,0 +1,5 @@
+Flask==1.1.1
+ObjDict==0.4.4
+requests==2.22.0
+configparser==4.0.2
+enum==0.4.7

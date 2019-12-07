@@ -1,0 +1,41 @@
+===============================================================================
+Build Code and Docker Container
+===============================================================================
+docker build -t srivatsabc/nodejs-openshift-centos7 .
+docker push srivatsabc/nodejs-openshift-centos7
+===============================================================================
+
+docker run -P --name demp-app srivatsabc/demp-app:v0.0.1
+
+winpty docker run -ti --rm srivatsabc/python-openshift-centos7 bash
+
+winpty docker run -ti -user root --rm srivatsabc/airport-locator-app:process-api-v0.0.3 bash
+
+docker run -ti --rm srivatsabc/nodejs-openshift-centos7 bash
+
+docker run -ti --user root --rm srivatsabc/nodejs-openshift-centos7 bash
+
+oc login
+
+oc project system-api-ns
+
+oc new-app srivatsabc/airport-locator-app:os-papi-v0.0.3 --name airport-locator-app
+
+oc expose svc airport-locator-app --name=airport-locator-app
+
+oc expose svc/airport-locator-app
+
+oc delete all --selector app=airport-locator-app
+
+
+pip3 install packageName --user
+
+pip install -r requirements.txt --user
+
+s2i create python-openshift-centos7 .
+
+s2i build app/ srivatsabc/nodejs-openshift-centos7 srivatsabc/demp-app:v0.0.1
+
+docker push srivatsabc/demp-app:v0.0.1
+
+
