@@ -17,7 +17,7 @@ spec:
       labels:
         app: airport-locator-app
     spec:
-      nodeSelector:  # Assigning the database to node01 node name got from the kubectl get nodes command
+      nodeSelector:  
         region: primary
       affinity:
         podAntiAffinity:

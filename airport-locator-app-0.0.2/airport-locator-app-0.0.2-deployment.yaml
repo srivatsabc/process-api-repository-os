@@ -18,7 +18,7 @@ spec:
         app: airport-locator-app
     spec:
       nodeSelector:
-        kubernetes.io/system-apis: allow
+        region: primary
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
