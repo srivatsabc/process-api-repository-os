@@ -28,9 +28,8 @@ Deploy app and create service
 ===============================================================================
 oc apply -n process-api-ns -f airport-locator-app-0.0.3-deployment.yaml
 
-oc process -f airport-locator-app-params-deployment.yaml -p IMAGE_NAME=srivatsabc/airport-locator-app:os-p-api-v0.0.3 | oc create -f -
+oc apply -n process-api-ns -f airport-locator-app-0.0.3-deployment.yaml
 
-srivatsabc/airport-locator-app:os-p-api-v0.0.2
 ===============================================================================
 Docker commands oc app
 ===============================================================================
