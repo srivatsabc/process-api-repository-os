@@ -10,7 +10,7 @@ pipeline {
      service_yaml = "airport-locator-app-0.0.2-service.yaml"
      okd_namespace = "process-api-ns"
      okd_application = "airport-locator-app-v002"
-     config_map = $okd_application"-config"
+     config_map = "airport-locator-app-v002-config"
    }
 
   agent {
@@ -34,13 +34,13 @@ pipeline {
       stage('OpenShift deployment delete') {
         steps {
           script {
-            sh "echo deleting the current OpenShift deployment $okd_app from namespace $okd_namespace"
-            status = sh(returnStatus: true, script: "oc delete deployment $okd_app --namespace=$okd_namespace")
+            sh "echo deleting the current OpenShift deployment $okd_application from namespace $okd_namespace"
+            status = sh(returnStatus: true, script: "oc delete deployment $okd_application --namespace=$okd_namespace")
             if (status == 0){
               stage('OpenShift service delete') {
                   script{
-                    sh "echo deleting the current OpenShift service $okd_app from namespace $okd_namespace"
-                    status = sh(returnStatus: true, script: "oc delete service $okd_app --namespace=$okd_namespace")
+                    sh "echo deleting the current OpenShift service $okd_application from namespace $okd_namespace"
+                    status = sh(returnStatus: true, script: "oc delete service $okd_application --namespace=$okd_namespace")
                     if (status == 0){
                       stage('Deleting current docker image from local repo'){
                         sh "echo deleting docker image from local $docker_id/$docker_repo:$docker_tag"
