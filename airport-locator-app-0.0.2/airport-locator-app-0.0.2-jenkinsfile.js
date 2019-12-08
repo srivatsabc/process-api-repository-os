@@ -93,8 +93,8 @@ pipeline {
     stage('OpenShift configmap') {
       steps {
         script {
-          sh "echo creating oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=okd"
-          statusCreate = sh(returnStatus: true, script: "oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=okd")
+          sh "echo creating oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s"
+          statusCreate = sh(returnStatus: true, script: "oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s")
           if (statusCreate != 0){
             sh "echo Unable to create $config_map in $okd_namespace as it already exists"
           }else{
