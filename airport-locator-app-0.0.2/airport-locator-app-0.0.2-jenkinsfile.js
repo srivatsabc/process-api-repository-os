@@ -1,7 +1,7 @@
 pipeline {
 
   environment {
-     application = "airport-locator-app-0.0.2"
+     git_application = "airport-locator-app-0.0.2"
      docker_id = "srivatsabc"
      docker_pwd = "wipro123"
      docker_repo = "airport-locator-app"
@@ -9,8 +9,8 @@ pipeline {
      deploymemt_yaml = "airport-locator-app-0.0.2-deployment.yaml"
      service_yaml = "airport-locator-app-0.0.2-service.yaml"
      okd_namespace = "process-api-ns"
-     okd_app = "airport-locator-app"
-     config_map = "airport-locator-app-config"
+     okd_application = "airport-locator-app-v002"
+     config_map = okd_application"-config"
    }
 
   agent {
@@ -72,7 +72,7 @@ pipeline {
     stage('Build docker image') {
       steps {
         sh "echo build docker image $docker_id/$docker_repo:$docker_tag"
-        sh 'docker build -t $docker_id/$docker_repo:$docker_tag $application/.'
+        sh 'docker build -t $docker_id/$docker_repo:$docker_tag $git_application/.'
       }
     }
 
@@ -108,13 +108,13 @@ pipeline {
 
     stage('OpenShift deployment') {
       steps {
-        sh 'oc apply -n $okd_namespace -f $application/$deploymemt_yaml'
+        sh 'oc apply -n $okd_namespace -f $git_application/$deploymemt_yaml'
       }
     }
 
     stage('OpenShift service') {
       steps {
-        sh 'oc apply -n $okd_namespace -f $application/$service_yaml'
+        sh 'oc apply -n $okd_namespace -f $git_application/$service_yaml'
       }
     }
   }
