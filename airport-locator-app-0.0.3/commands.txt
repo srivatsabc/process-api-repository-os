@@ -28,8 +28,7 @@ Deploy app and create service
 ===============================================================================
 oc apply -n process-api-ns -f airport-locator-app-0.0.3-deployment.yaml
 
-oc apply -n process-api-ns -f airport-locator-app-0.0.3-deployment.yaml
-
+oc apply -n process-api-ns -f airport-locator-app-0.0.3-service.yaml
 ===============================================================================
 Docker commands oc app
 ===============================================================================
