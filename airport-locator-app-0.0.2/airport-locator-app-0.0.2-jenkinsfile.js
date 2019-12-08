@@ -10,7 +10,7 @@ pipeline {
      service_yaml = "airport-locator-app-0.0.2-service.yaml"
      okd_namespace = "process-api-ns"
      okd_application = "airport-locator-app-v002"
-     config_map = okd_application"-config"
+     config_map = $okd_application"-config"
    }
 
   agent {
