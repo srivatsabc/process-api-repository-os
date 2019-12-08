@@ -6,16 +6,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: airport-locator-app
+  name: airport-locator-app-v002
 spec:
   selector:
       matchLabels:
-        app: airport-locator-app
+        app: airport-locator-app-v002
   replicas: 1
   template:
     metadata:
       labels:
-        app: airport-locator-app
+        app: airport-locator-app-v002
     spec:
       nodeSelector:
         region: primary
@@ -27,7 +27,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - airport-locator-app
+                - airport-locator-app-v002
             topologyKey: "kubernetes.io/hostname"
       # ----------------------------------
       # will target master node deployment
@@ -37,8 +37,8 @@ spec:
       #    effect: "NoSchedule"
       # ----------------------------------
       containers:
-        - name: airport-locator-app
-          image: srivatsabc/airport-locator-app:os-p-api-v0.0.2 #v 002 is for kubernetes cluster and v 001 is for dockerswarm. DB connection string changes
+        - name: airport-locator-app-v002
+          image: srivatsabc/airport-locator-app:os-p-api-v0.0.2
           imagePullPolicy: Always
           ports:
             - containerPort: 8084
@@ -46,5 +46,5 @@ spec:
             - name: RUNTIME_ENV_TYPE #In order to help mule application pickup the right jdbc properties
               valueFrom:
                 configMapKeyRef:
-                  name: airport-locator-app-config
+                  name: airport-locator-app-v002-config
                   key: RUNTIME_ENV_TYPE

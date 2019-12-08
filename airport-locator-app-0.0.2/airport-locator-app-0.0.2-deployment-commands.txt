@@ -13,41 +13,41 @@ docker rmi
 ===============================================================
 Create namespace:
 ===============================================================
-kubectl create namespace process-api-ns
+oc create namespace process-api-ns
 
 ===============================================================
 Create and verify configmap:
 ===============================================================
-kubectl create -n process-api-ns configmap airport-locator-app-config --from-literal=RUNTIME.ENV.TYPE=k8s
+oc create -n process-api-ns configmap airport-locator-app-v002-config --from-literal=RUNTIME_ENV_TYPE=k8s
 
-kubectl -n process-api-ns get configmap
+oc -n process-api-ns get configmap
 
 ===============================================================
 Create deployment using yaml:
 ===============================================================
-kubectl apply -n process-api-ns -f airport-locator-deployment.yaml
+oc apply -n process-api-ns -f airport-locator-app-0.0.2-deployment.yaml
 
 ===============================================================
 Check deployments within namespace:
 ===============================================================
-kubectl -n process-api-ns get deployments
+oc -n process-api-ns get deployments
 
 ===============================================================
 Check status of pods within namespace:
 ===============================================================
-kubectl -n process-api-ns get pods
+oc -n process-api-ns get pods
 
-kubectl -n process-api-ns get pods -o wide
+oc -n process-api-ns get pods -o wide
 
 ===============================================================
 Check service within namespace to access api:
 ===============================================================
-kubectl -n process-api-ns apply -f airport-locator-service.yaml
+oc -n process-api-ns apply -f airport-locator-app-0.0.2-service.yaml
 
 ===============================================================
 Check service within namespace:
 ===============================================================
-kubectl -n process-api-ns get svc
+oc -n process-api-ns get svc
 
 
 ===============================================================
@@ -59,27 +59,27 @@ http://127.0.0.1:30087/api/routes/LHR
 ===============================================================
 Delete service and deployment
 ===============================================================
-kubectl delete pod system-api-pod --namespace=process-api-ns
+oc delete pod system-api-pod --namespace=process-api-ns
 
-kubectl delete deployment airport-locator-app --namespace=process-api-ns
+oc delete deployment airport-locator-app --namespace=process-api-ns
 
-kubectl delete service airport-locator-app --namespace=process-api-ns
+oc delete service airport-locator-app --namespace=process-api-ns
 
 
 ========================= EXTRAS ======================================
 
 docker exec -it ba5a68e21658 bash
 
-kubectl api-resources --namespaced=true
+oc api-resources --namespaced=true
 
-kubectl exec -n process-api-ns -it 796ecbc1185d -- /bin/bash
+oc exec -n process-api-ns -it 796ecbc1185d -- /bin/bash
 
 mysql.system-of-records-ns.svc.cluste.local:3306
 
 Not Used
 
-kubectl apply -f deployment.yml
+oc apply -f deployment.yml
 
-kubectl expose -n nginx-namespace deployment/nginx-deployment --type="NodePort" --port 80
+oc expose -n nginx-namespace deployment/nginx-deployment --type="NodePort" --port 80
 
 http://nginx-deployment:31525

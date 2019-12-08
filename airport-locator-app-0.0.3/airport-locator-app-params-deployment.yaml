@@ -38,7 +38,7 @@ spec:
       # ----------------------------------
       containers:
         - name: airport-locator-app
-          image: srivatsabc/airport-locator-app:os-p-api-v0.0.3
+          image: ${IMAGE_NAME}
           imagePullPolicy: Always
           ports:
             - containerPort: 9031
@@ -48,3 +48,7 @@ spec:
                 configMapKeyRef:
                   name: airport-locator-app-config
                   key: RUNTIME_ENV_TYPE
+parameters:
+  - name: IMAGE_NAME
+    description: Name of the image used for the deployment of this application
+    required: true
