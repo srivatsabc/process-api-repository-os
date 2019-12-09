@@ -5,6 +5,11 @@ docker build -t srivatsabc/airport-locator-app:os-papi-v0.0.1 .
 docker push srivatsabc/airport-locator-app:os-papi-v0.0.1
 ===============================================================================
 
+===============================================================
+Enable connectivity across pods and namespace:
+===============================================================
+oc adm pod-network make-projects-global process-api-ns system-api-ns
+
 ===============================================================================
 Build oc app
 ===============================================================================

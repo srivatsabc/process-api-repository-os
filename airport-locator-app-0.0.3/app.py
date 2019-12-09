@@ -83,7 +83,7 @@ def returnAirportInfo(iata):
             print("Country Code: " + str(airport_response_json ["results"][0]["iso_country"]));
             api = config.get(envType, envType + '.country.locator.url') + countryCode
             print('country_locator_api_url : ' + api)
-            country_response = requests.get(api)
+            country_response = requests.get(api, timeout=5.0)
             country_response_json = json.loads(country_response.text)
 
             #Prepare Response
