@@ -68,9 +68,6 @@ def returnAirportInfo(iata):
         except requests.exceptions.Timeout as error:
             error = returnError(504, iata, api, str(error))
             return Response(error, status=504, mimetype='application/json')
-        except requests.exceptions.ConnectTimeoutError as error:
-           error = returnError(504, iata, api, str(error))
-           return Response(error, status=504, mimetype='application/json')
         except requests.exceptions.RequestException as error:
             error = returnError(504, iata, api, str(error))
             return Response(error, status=504, mimetype='application/json')
@@ -102,8 +99,6 @@ def returnAirportInfo(iata):
         except requests.exceptions.Timeout as error:
             error = returnError(504, iata, api, str(error))
             return Response(error, status=504, mimetype='application/json')
-        except requests.exceptions.ConnectTimeoutError as error:
-           error = returnError(504, iata, api, str(error))
         except requests.exceptions.RequestException as error:
             error = returnError(504, iata, api, str(error))
             return Response(error, status=504, mimetype='application/json')
