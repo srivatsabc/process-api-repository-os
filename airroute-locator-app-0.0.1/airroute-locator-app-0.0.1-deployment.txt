@@ -11,7 +11,7 @@ oc label node node1.openshift.com kubernetes.io/process-apis=allow
 
 oc label node node2.openshift.com kubernetes.io/process-apis=allow
 
-oc label node node2.openshift.com kubernetes.io/process-apis=allow
+oc label node master.openshift.com kubernetes.io/process-apis=allow
 
 ===============================================================
 Create namespace:

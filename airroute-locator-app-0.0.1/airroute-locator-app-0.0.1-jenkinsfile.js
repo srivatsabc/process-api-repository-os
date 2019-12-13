@@ -8,7 +8,7 @@ pipeline {
      config_map = "airroute-locator-app-v001-config"
      docker_id = "srivatsabc"
      docker_repo = "airroute-locator-app"
-     docker_tag = "os-s-api-v0.0.1"
+     docker_tag = "os-p-api-v0.0.1"
      docker_pwd = "wipro123"
      deploymemt_yaml = "airroute-locator-app-0.0.1-deployment.yaml"
      service_yaml = "airroute-locator-app-0.0.1-service.yaml"
