@@ -4,46 +4,51 @@ Build Code and Docker Container
 docker build -t srivatsabc/airroute-locator-app:process-api-v0.0.1 .
 docker push srivatsabc/airroute-locator-app:process-api-v0.0.1
 
-kubectl label node k8s-node-01 kubernetes.io/process-apis=allow
+oc edit namespace process-api-ns
+scheduler.alpha.kubernetes.io/node-selector: process-apis=allow
 
-kubectl label node k8s-node-02 kubernetes.io/process-apis=allow
+oc label node node1.openshift.com kubernetes.io/process-apis=allow
+
+oc label node node2.openshift.com kubernetes.io/process-apis=allow
+
+oc label node node2.openshift.com kubernetes.io/process-apis=allow
 
 ===============================================================
 Create namespace:
 ===============================================================
-kubectl create namespace process-api-ns
+oc create namespace process-api-ns
 
 ===============================================================
 Create and verify configmap:
 ===============================================================
-kubectl create -n process-api-ns configmap airroute-locator-app-config --from-literal=RUNTIME_ENV_TYPE=k8s
+oc create -n process-api-ns configmap airroute-locator-app-config --from-literal=RUNTIME_ENV_TYPE=k8s
 
-kubectl -n process-api-ns get configmap
+oc -n process-api-ns get configmap
 
 ===============================================================
 Create deployment using yaml:
 ===============================================================
-kubectl apply -n process-api-ns -f airroute-locator-deployment.yaml
+oc apply -n process-api-ns -f airroute-locator-deployment.yaml
 
 ===============================================================
 Check deployments within namespace:
 ===============================================================
-kubectl -n process-api-ns get deployments
+oc -n process-api-ns get deployments
 
 ===============================================================
 Check status of pods within namespace:
 ===============================================================
-kubectl -n process-api-ns get pods
+oc -n process-api-ns get pods
 
 ===============================================================
 Check service within namespace to access api:
 ===============================================================
-kubectl -n process-api-ns create -f airroute-locator-service.yaml
+oc -n process-api-ns create -f airroute-locator-service.yaml
 
 ===============================================================
 Check service within namespace:
 ===============================================================
-kubectl -n process-api-ns get svc
+oc -n process-api-ns get svc
 
 
 ===============================================================
@@ -56,14 +61,14 @@ http://127.0.0.1:30087/api/routes/LHR
 Delete service and deployment
 ===============================================================
 
-kubectl delete deployment airroute-locator-app --namespace=process-api-ns
+oc delete deployment airroute-locator-app --namespace=process-api-ns
 
-kubectl delete service airroute-locator-app --namespace=process-api-ns
+oc delete service airroute-locator-app --namespace=process-api-ns
 
 ===============================================================
 Port forward
 ===============================================================
-kubectl port-forward -n process-api-ns svc/airroute-locator-app 30085:8085
+oc port-forward -n process-api-ns svc/airroute-locator-app 30085:8085
 
 
 docker run -p 30085:8085 --name airroute-locator-app -d srivatsabc/airroute-locator-app:001
