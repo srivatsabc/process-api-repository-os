@@ -13,5 +13,5 @@ ENTRYPOINT ["python3"]
 
 CMD ["app.py"]
 
-# This default user is created in the openshift docker images image
+# This is the default user for running docker container in OpenShift
 USER 1001
