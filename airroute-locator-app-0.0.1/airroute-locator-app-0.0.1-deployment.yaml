@@ -18,7 +18,7 @@ spec:
         app: airroute-locator-app-v001
     spec:
       nodeSelector:
-        region: primary
+        process-apis: allow
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

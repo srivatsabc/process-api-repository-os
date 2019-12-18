@@ -6,6 +6,7 @@ docker push srivatsabc/airroute-locator-app:process-api-v0.0.1
 
 oc edit namespace process-api-ns
 scheduler.alpha.kubernetes.io/node-selector: process-apis=allow
+openshift.io/node-selector: ""
 
 oc label node node1.openshift.com process-apis=allow
 oc label node node1.openshift.com process-apis=allow
