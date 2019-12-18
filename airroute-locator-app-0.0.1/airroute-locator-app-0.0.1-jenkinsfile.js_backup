@@ -1,16 +1,17 @@
 pipeline {
 
   environment {
-     application = "airroute-locator-app-0.0.1"
+     git_subdirectory = "airroute-locator-app-0.0.1"
+     git_repo_url = "https://github.com/srivatsabc/process-api-repository-os.git"
+     okd_app = "airroute-locator-app-v001"
+     okd_namespace = "process-api-ns"
+     config_map = "airroute-locator-app-v001-config"
      docker_id = "srivatsabc"
-     docker_pwd = "wipro123"
      docker_repo = "airroute-locator-app"
-     docker_tag = "process-api-v0.0.1"
+     docker_tag = "os-p-api-v0.0.1"
+     docker_pwd = "wipro123"
      deploymemt_yaml = "airroute-locator-app-0.0.1-deployment.yaml"
      service_yaml = "airroute-locator-app-0.0.1-service.yaml"
-     k8s_namespace = "process-api-ns"
-     k8s_app = "airroute-locator-app"
-     config_map = "airroute-locator-app-config"
    }
 
   agent {
@@ -23,53 +24,56 @@ pipeline {
             checkout([$class: 'GitSCM',
               branches: [[name: 'master']],
               doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path:'airroute-locator-app-0.0.1/']]]                        ],
+              extensions: [[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path:"${git_subdirectory}/"]]]                        ],
               submoduleCfg: [],
-              userRemoteConfigs: [[credentialsId: 'srivatsabc_git_login', url: 'https://github.com/srivatsabc/process-api-repository.git']]])
+              userRemoteConfigs: [[credentialsId: 'srivatsabc_git_login', url: "${git_repo_url}"]]])
 
             sh "ls -lat"
           }
       }
 
-    stage('script') {
-      steps {
-        script {
-          sh "echo deleting docker image from local $docker_id/$docker_repo:$docker_tag"
-          status = sh(returnStatus: true, script: "docker rmi $docker_id/$docker_repo:$docker_tag")
-          if (status != 0){
-            stage('script') {
-                script{
-                  status = sh(returnStatus: true, script: "kubectl delete deployment $k8s_app --namespace=$k8s_namespace")
-                  if (status != 0){
-                    stage('Nothing to delete'){
-                      sh "echo no deployment to delete in kubernetes"
-                    }
-                  }else{
-                    stage('script') {
-                        script {
-                          statusDelete = sh(returnStatus: true, script: "kubectl delete service $k8s_app --namespace=$k8s_namespace")
-                          if (statusDelete == 0){
-                            sh "echo Trying to delete docker image from local $docker_id/$docker_repo:$docker_tag"
-                            sh 'docker rmi $docker_id/$docker_repo:$docker_tag -f'
-                          }else{
-                            stage('Nothing to delete'){
-                              sh "echo no service to delte in kubernetes"
-                            }
+    stage('OpenShift deployment delete') {
+        steps {
+          script {
+            sh "echo deleting the current OpenShift deployment $okd_app from namespace $okd_namespace"
+            status = sh(returnStatus: true, script: "oc delete deployment $okd_app --namespace=$okd_namespace")
+            if (status == 0){
+              stage('OpenShift service delete') {
+                  script{
+                    sh "echo deleting the current OpenShift service $okd_app from namespace $okd_namespace"
+                    status = sh(returnStatus: true, script: "oc delete service $okd_app --namespace=$okd_namespace")
+                    if (status == 0){
+                      stage('Deleting current docker image from local repo'){
+                        sh "echo deleting docker image from local $docker_id/$docker_repo:$docker_tag"
+                        status = sh(returnStatus: true, script: "docker rmi $docker_id/$docker_repo:$docker_tag -f")
+                        if (status == 0){
+                          sh "echo Delete kube deployment service and docker image successfully"
+                        }else{
+                          stage('Nothing docker image to delete'){
+                            sh "echo no docker image to delete in local repo"
                           }
                         }
+                      }
+                    }else{
+                      stage('No OpenShift service to delete'){
+                        sh "echo no service available in OpenShift"
+                      }
                     }
                   }
-                }
+              }
+            }else{
+              stage('No OpenShift deployment to delete'){
+                sh "echo no deployment available in OpenShift"
+              }
             }
           }
         }
       }
-    }
 
     stage('Build docker image') {
       steps {
         sh "echo build docker image $docker_id/$docker_repo:$docker_tag"
-        sh 'docker build -t $docker_id/$docker_repo:$docker_tag $application/.'
+        sh 'docker build -t $docker_id/$docker_repo:$docker_tag $git_subdirectory/.'
       }
     }
 
@@ -87,44 +91,31 @@ pipeline {
       }
     }
 
-    /*
-    stage('Delete existing Kubernetes deployment') {
-      steps {
-        sh 'kubectl delete deployment $k8s_app --namespace=$k8s_namespace'
-      }
-    }
-
-    stage('Delete existing Kubernetes service') {
-      steps {
-        sh 'kubectl delete service $k8s_app --namespace=$k8s_namespace'
-      }
-    }*/
-
-    stage('Kubernetes configmap') {
-      steps {
-        script {
-          sh "echo creating kubectl create -n $k8s_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s"
-          statusCreate = sh(returnStatus: true, script: "kubectl create -n $k8s_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s")
-          if (statusCreate != 0){
-            sh "echo Unable to create $config_map in $k8s_namespace as it already exists"
-          }else{
-            stage('Kubernetes configmap created'){
-              sh "echo Kubernetes configmap successfully created"
+    stage('OpenShift configmap') {
+        steps {
+          script {
+            sh "echo creating oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s"
+            statusCreate = sh(returnStatus: true, script: "oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s")
+            if (statusCreate != 0){
+              sh "echo Unable to create $config_map in $okd_namespace as it already exists"
+            }else{
+              stage('OpenShift configmap created'){
+                sh "echo OpenShift configmap successfully created"
+              }
             }
           }
         }
       }
-    }
 
-    stage('Kubernetes deployment') {
+    stage('OpenShift deployment') {
       steps {
-        sh 'kubectl apply -n $k8s_namespace -f $application/$deploymemt_yaml'
+        sh 'oc apply -n $okd_namespace -f $git_subdirectory/$deploymemt_yaml'
       }
     }
 
-    stage('Kubernetes service') {
+    stage('OpenShift service') {
       steps {
-        sh 'kubectl apply -n $k8s_namespace -f $application/$service_yaml'
+        sh 'oc apply -n $okd_namespace -f $git_subdirectory/$service_yaml'
       }
     }
   }

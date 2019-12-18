@@ -7,11 +7,15 @@ docker push srivatsabc/airroute-locator-app:process-api-v0.0.1
 oc edit namespace process-api-ns
 scheduler.alpha.kubernetes.io/node-selector: process-apis=allow
 
-oc label node node1.openshift.com kubernetes.io/process-apis=allow
+oc label node node1.openshift.com process-apis=allow
+oc label node node1.openshift.com process-apis=allow
 
-oc label node node2.openshift.com kubernetes.io/process-apis=allow
+oc label node node1.openshift.com process-apis=allow
+oc label node node2.openshift.com process-apis=allow
 
-oc label node master.openshift.com kubernetes.io/process-apis=allow
+oc label node node1.openshift.com process-apis=allow
+
+oc label node master.openshift.com process-apis=allow
 
 ===============================================================
 Create namespace:
@@ -28,7 +32,7 @@ oc -n process-api-ns get configmap
 ===============================================================
 Create deployment using yaml:
 ===============================================================
-oc apply -n process-api-ns -f airroute-locator-deployment.yaml
+oc apply -n process-api-ns -f airroute-locator-app-0.0.1-deployment.yaml
 
 ===============================================================
 Check deployments within namespace:
@@ -43,7 +47,7 @@ oc -n process-api-ns get pods
 ===============================================================
 Check service within namespace to access api:
 ===============================================================
-oc -n process-api-ns create -f airroute-locator-service.yaml
+oc -n process-api-ns create -f airroute-locator-app-0.0.1-service.yaml
 
 ===============================================================
 Check service within namespace:

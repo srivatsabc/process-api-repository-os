@@ -1,17 +1,18 @@
 pipeline {
 
   environment {
-     git_subdirectory = "airroute-locator-app-0.0.1"
-     git_repo_url = "https://github.com/srivatsabc/process-api-repository-os.git"
-     okd_app = "airroute-locator-app-v001"
-     okd_namespace = "process-api-ns"
-     config_map = "airroute-locator-app-v001-config"
-     docker_id = "srivatsabc"
-     docker_repo = "airroute-locator-app"
-     docker_tag = "os-p-api-v0.0.1"
-     docker_pwd = "wipro123"
-     deploymemt_yaml = "airroute-locator-app-0.0.1-deployment.yaml"
-     service_yaml = "airroute-locator-app-0.0.1-service.yaml"
+     GIT_SUBDIRECTORY = "airroute-locator-app-0.0.1"
+     GIT_REPO_URL = "https://github.com/srivatsabc/process-api-repository-os.git"
+     OKD_APP = "airroute-locator-app-v001"
+     OKD_NAMESPACE = "process-api-ns"
+     CONFIG_MAP = "airroute-locator-app-v001-config"
+     DOCKER_ID = "srivatsabc"
+     DOCKER_REPO = "airroute-locator-app"
+     DOCKER_TAG = "os-p-api-v0.0.1"
+     DOCKER_PWD = "wipro123"
+     DEPLOYMENT_YAML = "airroute-locator-app-0.0.1-deployment.yaml"
+     SERVICE_YAML = "airroute-locator-app-0.0.1-service.yaml"
+     DOCKER_REGISTRY = "docker-registry.default.svc:5000"
    }
 
   agent {
@@ -24,9 +25,9 @@ pipeline {
             checkout([$class: 'GitSCM',
               branches: [[name: 'master']],
               doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path:"${git_subdirectory}/"]]]                        ],
+              extensions: [[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path:"${GIT_SUBDIRECTORY}/"]]]                        ],
               submoduleCfg: [],
-              userRemoteConfigs: [[credentialsId: 'srivatsabc_git_login', url: "${git_repo_url}"]]])
+              userRemoteConfigs: [[credentialsId: 'srivatsabc_git_login', url: "${GIT_REPO_URL}"]]])
 
             sh "ls -lat"
           }
@@ -35,17 +36,17 @@ pipeline {
     stage('OpenShift deployment delete') {
         steps {
           script {
-            sh "echo deleting the current OpenShift deployment $okd_app from namespace $okd_namespace"
-            status = sh(returnStatus: true, script: "oc delete deployment $okd_app --namespace=$okd_namespace")
+            sh "echo deleting the current OpenShift deployment $OKD_APP from namespace $OKD_NAMESPACE"
+            status = sh(returnStatus: true, script: "oc delete deployment $OKD_APP --namespace=$OKD_NAMESPACE")
             if (status == 0){
               stage('OpenShift service delete') {
                   script{
-                    sh "echo deleting the current OpenShift service $okd_app from namespace $okd_namespace"
-                    status = sh(returnStatus: true, script: "oc delete service $okd_app --namespace=$okd_namespace")
+                    sh "echo deleting the current OpenShift service $OKD_APP from namespace $OKD_NAMESPACE"
+                    status = sh(returnStatus: true, script: "oc delete service $OKD_APP --namespace=$OKD_NAMESPACE")
                     if (status == 0){
                       stage('Deleting current docker image from local repo'){
-                        sh "echo deleting docker image from local $docker_id/$docker_repo:$docker_tag"
-                        status = sh(returnStatus: true, script: "docker rmi $docker_id/$docker_repo:$docker_tag -f")
+                        sh "echo deleting docker image from local $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG"
+                        status = sh(returnStatus: true, script: "docker rmi $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG -f")
                         if (status == 0){
                           sh "echo Delete kube deployment service and docker image successfully"
                         }else{
@@ -72,32 +73,61 @@ pipeline {
 
     stage('Build docker image') {
       steps {
-        sh "echo build docker image $docker_id/$docker_repo:$docker_tag"
-        sh 'docker build -t $docker_id/$docker_repo:$docker_tag $git_subdirectory/.'
+        sh "echo build docker image $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG"
+        sh 'docker build -t $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG $GIT_SUBDIRECTORY/.'
       }
     }
 
-    stage('Docker login') {
+    stage('Docker Image Re-Tag') {
       steps {
-        sh "echo loging into Docker hub"
-        sh 'docker login -u $docker_id -p $docker_pwd'
+        sh "echo docker tag $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG"
+        sh 'docker tag $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG'
       }
     }
 
-    stage('Docker push') {
+    stage('Docker Internal Registry login') {
       steps {
-        sh "echo Pushing $docker_id/$docker_repo:$docker_tag to Docker hub"
-        sh 'docker push $docker_id/$docker_repo:$docker_tag'
+        sh 'docker login -u okd-admin -p `oc whoami -t` $DOCKER_REGISTRY'
+      }
+    }
+
+    stage('Docker Create ImageStream') {
+      steps {
+        script {
+          sh 'echo oc create is $DOCKER_REPO -n $OKD_NAMESPACE'
+          statusCreate = sh(returnStatus: true, script: "oc create is $DOCKER_REPO -n $OKD_NAMESPACE")
+          if (statusCreate != 0){
+            sh "echo ImageStream $DOCKER_REPO already exists under $OKD_NAMESPACE ns"
+          }else{
+            stage('OpenShift ImageStream created'){
+              sh "echo OpenShift ImageStream successfully created"
+            }
+          }
+        }
+      }
+    }
+
+    stage('Docker Push to Internal Registry') {
+      steps {
+        sh "echo Pushing $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG to Internal Registry"
+        sh 'docker push $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG'
+      }
+    }
+
+    stage('Delete Local Docker images') {
+      steps {
+        sh "docker rmi $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG -f"
+        sh 'docker rmi $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG -f'
       }
     }
 
     stage('OpenShift configmap') {
         steps {
           script {
-            sh "echo creating oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s"
-            statusCreate = sh(returnStatus: true, script: "oc create -n $okd_namespace configmap $config_map --from-literal=RUNTIME_ENV_TYPE=k8s")
+            sh "echo creating oc create -n $OKD_NAMESPACE configmap $CONFIG_MAP --from-literal=RUNTIME_ENV_TYPE=k8s"
+            statusCreate = sh(returnStatus: true, script: "oc create -n $OKD_NAMESPACE configmap $CONFIG_MAP --from-literal=RUNTIME_ENV_TYPE=k8s")
             if (statusCreate != 0){
-              sh "echo Unable to create $config_map in $okd_namespace as it already exists"
+              sh "echo Unable to create $CONFIG_MAP in $OKD_NAMESPACE as it already exists"
             }else{
               stage('OpenShift configmap created'){
                 sh "echo OpenShift configmap successfully created"
@@ -107,15 +137,22 @@ pipeline {
         }
       }
 
+    stage('OpenShift Login') {
+        steps {
+          sh 'oc login -u okd-admin https://192.168.1.50:8443 -p root --insecure-skip-tls-verify'
+        }
+    }
+
     stage('OpenShift deployment') {
       steps {
-        sh 'oc apply -n $okd_namespace -f $git_subdirectory/$deploymemt_yaml'
+        sh 'oc whoami'
+        sh 'oc apply -n $OKD_NAMESPACE -f $GIT_SUBDIRECTORY/$DEPLOYMENT_YAML'
       }
     }
 
     stage('OpenShift service') {
       steps {
-        sh 'oc apply -n $okd_namespace -f $git_subdirectory/$service_yaml'
+        sh 'oc apply -n $OKD_NAMESPACE -f $GIT_SUBDIRECTORY/$SERVICE_YAML'
       }
     }
   }
