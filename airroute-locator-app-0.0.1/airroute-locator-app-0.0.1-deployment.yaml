@@ -38,7 +38,7 @@ spec:
       # ----------------------------------
       containers:
         - name: airroute-locator-app-v001
-          image: srivatsabc/airroute-locator-app:os-p-api-v0.0.1
+          image: docker-registry.default.svc:5000/process-api-ns/airroute-locator-app:os-p-api-v0.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8085
