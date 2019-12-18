@@ -18,7 +18,7 @@ spec:
         app: airroute-locator-app-v001
     spec:
       nodeSelector:
-        kubernetes.io/process-apis: allow
+        process-apis: allow
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

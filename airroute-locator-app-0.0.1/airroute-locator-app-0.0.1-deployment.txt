@@ -65,9 +65,9 @@ http://127.0.0.1:30087/api/routes/LHR
 Delete service and deployment
 ===============================================================
 
-oc delete deployment airroute-locator-app --namespace=process-api-ns
+oc delete deployment airroute-locator-app-v001 --namespace=process-api-ns
 
-oc delete service airroute-locator-app --namespace=process-api-ns
+oc delete service airroute-locator-app-v001 --namespace=process-api-ns
 
 ===============================================================
 Port forward
