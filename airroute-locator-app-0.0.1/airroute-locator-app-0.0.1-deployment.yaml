@@ -39,7 +39,7 @@ spec:
       containers:
         - name: airroute-locator-app-v001
           image: srivatsabc/airroute-locator-app:os-p-api-v0.0.1
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8085
           env:
