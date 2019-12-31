@@ -21,6 +21,8 @@ config.read('app.properties')
 app.config['ELASTIC_APM'] = {
           'SERVICE_NAME': config.get(envType, 'service.name'),
           'SERVER_URL': config.get(envType, 'apm.endpoint'),
+          'ENVIRONMENT': "Production",
+          'SERVER_TIMEOUT': "10s",
           'DEBUG': True
 }
 apm = ElasticAPM(app)
