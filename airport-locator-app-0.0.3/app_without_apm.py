@@ -2,7 +2,6 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from flask import Response
-from elasticapm.contrib.flask import ElasticAPM
 from objdict import ObjDict
 import requests
 import json
@@ -11,19 +10,10 @@ import configparser
 
 app = Flask(__name__)
 
-#Set environment and read porperties
 envType = os.environ['RUNTIME_ENV_TYPE']
 print ("RUNTIME_ENV_TIME : " + envType)
 config = configparser.RawConfigParser()
 config.read('app.properties')
-
-#Configure elastic apm
-app.config['ELASTIC_APM'] = {
-          'SERVICE_NAME': config.get(envType, 'service.name'),
-          'SERVER_URL': config.get(envType, 'apm.endpoint'),
-          'DEBUG': True
-}
-apm = ElasticAPM(app)
 
 #Overloaded returnError method for error handling
 def returnError(httpErrorCode, iata, api, error=None):
