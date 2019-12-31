@@ -137,12 +137,6 @@ pipeline {
         }
       }
 
-    stage('OpenShift Login') {
-        steps {
-          sh 'oc login -u okd-admin https://192.168.1.50:8443 -p root --insecure-skip-tls-verify'
-        }
-    }
-
     stage('OpenShift deployment') {
       steps {
         sh 'oc whoami'
