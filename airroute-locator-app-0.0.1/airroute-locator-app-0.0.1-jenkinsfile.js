@@ -116,7 +116,7 @@ pipeline {
 
     stage('Delete Local Docker images') {
       steps {
-        sh "docker rmi $DOCKER_REGISTRY/$OKD_NAMESPACE/$DOCKER_REPO:$DOCKER_TAG -f"
+        sh 'docker rmi $DOCKER_ID/$DOCKER_REPO:$DOCKER_TAG -f'
       }
     }
 
@@ -135,7 +135,7 @@ pipeline {
           }
         }
       }
-      
+
     stage('OpenShift deployment') {
       steps {
         sh 'oc whoami'
